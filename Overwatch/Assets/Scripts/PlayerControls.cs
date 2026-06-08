@@ -11,7 +11,11 @@ public class PlayerControls : MonoBehaviour
     public float jumpForce = 2.0f;
     private Vector3 jump;
     private bool jumping = false;
+
     private bool isGrounded;
+
+    public LayerMask groundLayer;
+    private float rayLength = 1.1f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -27,17 +31,17 @@ public class PlayerControls : MonoBehaviour
         movementY = movementVector.y;
     }
 
-    void Update()
+    void OnJump(InputValue jumpValue)
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (isGrounded)
         {
             jumping = true;
         }
     }
 
-    void OnCollisionStay()
+    void Update()
     {
-        isGrounded = true;
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, rayLength, groundLayer);
     }
 
     void FixedUpdate()
@@ -45,9 +49,9 @@ public class PlayerControls : MonoBehaviour
         if (jumping)
         {
             rb.AddForce(jump * jumpForce, ForceMode.Impulse);
-            isGrounded = false;
             jumping = false;
         }
+
         Vector3 movement = new Vector3(movementX, 0.0f, movementY);
         rb.AddForce(movement * speed);
     }
